@@ -118,9 +118,14 @@ The window gives you:
 
 - A **live packet table**, colour-coded by protocol
   (TCP 🟢 · UDP 🔵 · ICMP 🟠 · ARP ⚪ · DNS 🟣)
-- **Interface** and **BPF filter** boxes, plus **Start / Stop / Clear** buttons
-- A **live per-protocol counter**
+- An **interface dropdown** that auto-lists your adapters with their IPs —
+  no need to type a device name
+- A **Capture (BPF) filter** applied when you press Start
+- A **live Display filter** that filters the table **instantly as you type** —
+  no need to stop the capture (e.g. type `443`, `dns`, `192.168` or `tcp`)
+- **Start / Stop / Clear** buttons and a **live per-protocol counter**
 - A **hex + ASCII payload viewer** that updates when you click a packet
+- A **🛡 Run as Admin** button + startup prompt to relaunch elevated on Windows
 
 Tkinter ships with Python, so there is nothing extra to install.
 

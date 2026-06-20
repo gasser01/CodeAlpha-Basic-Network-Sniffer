@@ -35,7 +35,7 @@ PROTO_RGB = {
 
 
 def gui_screenshot():
-    W, H = 1340, 820
+    W, H = 1340, 630
     img = Image.new("RGB", (W, H), (30, 30, 30))
     d = ImageDraw.Draw(img)
 
@@ -52,15 +52,16 @@ def gui_screenshot():
                                     ("x", (220, 90, 90))]):
         d.text((W - 110 + i * 36, 8), lab, font=f_ui, fill=col)
 
-    # ---- control bar ----
+    # ---- control bar (row 1): interface dropdown + capture filter + buttons ----
     y = 52
     d.text((16, y), "Interface:", font=f_ui, fill=(204, 204, 204))
-    d.rounded_rectangle([110, y - 4, 320, y + 26], radius=4, fill=(45, 45, 45))
-    d.text((120, y), "Wi-Fi", font=f_mono, fill=(255, 255, 255))
+    d.rounded_rectangle([110, y - 4, 380, y + 26], radius=4, fill=(45, 45, 45))
+    d.text((120, y), "Wi-Fi  (192.168.100.6)", font=f_mono, fill=(255, 255, 255))
+    d.polygon([(360, y + 8), (372, y + 8), (366, y + 16)], fill=(180, 180, 180))  # caret
 
-    d.text((340, y), "Filter (BPF):", font=f_ui, fill=(204, 204, 204))
-    d.rounded_rectangle([460, y - 4, 700, y + 26], radius=4, fill=(45, 45, 45))
-    d.text((470, y), "tcp or udp", font=f_mono, fill=(255, 255, 255))
+    d.text((400, y), "Capture (BPF):", font=f_ui, fill=(204, 204, 204))
+    d.rounded_rectangle([530, y - 4, 700, y + 26], radius=4, fill=(45, 45, 45))
+    d.text((540, y), "tcp or udp", font=f_mono, fill=(255, 255, 255))
 
     def button(x, text, color, w=110):
         d.rounded_rectangle([x, y - 6, x + w, y + 28], radius=5, fill=color)
@@ -73,11 +74,18 @@ def gui_screenshot():
     bx = button(bx, "Stop", (138, 43, 43))
     bx = button(bx, "Clear", (68, 68, 68), w=90)
 
+    # ---- control bar (row 2): live display filter ----
+    y2 = 92
+    d.text((16, y2), "Display filter:", font=f_ui, fill=(204, 204, 204))
+    d.rounded_rectangle([140, y2 - 4, 760, y2 + 26], radius=4, fill=(45, 45, 45))
+    d.text((150, y2), "443", font=f_mono, fill=(255, 216, 102))  # yellow, like the app
+    d.text((780, y2), "live - no need to stop the capture", font=f_ui, fill=(119, 119, 119))
+
     # ---- table ----
     cols = [("#", 55, "c"), ("Time", 95, "c"), ("Proto", 70, "c"),
             ("Source", 175, "l"), ("SPort", 70, "c"), ("Destination", 175, "l"),
             ("DPort", 70, "c"), ("Len", 60, "c"), ("Info", 380, "l")]
-    tx0, ty0 = 14, 98
+    tx0, ty0 = 14, 132
     tw = sum(c[1] for c in cols)
     # header
     d.rectangle([tx0, ty0, tx0 + tw, ty0 + 30], fill=(51, 51, 51))
@@ -102,9 +110,12 @@ def gui_screenshot():
         ("13", "14:02:15", "UDP", "160.79.104.10", "443", "192.168.1.5", "57918", "1294", "len=1274"),
         ("14", "14:02:16", "TCP", "192.168.1.5", "59457", "102.132.103.60", "443", "70", "flags=PA seq=20262"),
     ]
+    # the display filter "443" is active -> only rows mentioning 443 are shown
+    # (note how the # column keeps its real numbers, leaving gaps - just like the app)
+    rows = [r for r in rows if any("443" in str(x) for x in r)]
     rh = 30
     ry = ty0 + 31
-    sel_index = 7  # the highlighted row
+    sel_index = 2  # the highlighted row
     for i, row in enumerate(rows):
         bg = (9, 71, 113) if i == sel_index else ((37, 37, 38) if i % 2 == 0 else (43, 43, 44))
         d.rectangle([tx0, ry, tx0 + tw, ry + rh], fill=bg)
@@ -126,6 +137,7 @@ def gui_screenshot():
     sy = ry + 12
     d.text((16, sy), "Total: 14    TCP: 6    UDP: 5    ICMP: 1    ARP: 2    Other: 0",
            font=f_mono, fill=(221, 221, 221))
+    d.text((730, sy), '[filter "443": showing 7]', font=f_mono, fill=(255, 216, 102))
 
     # ---- payload viewer ----
     py = sy + 36
